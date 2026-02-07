@@ -8,18 +8,14 @@ if(req.method!=="POST"){
 return res.status(405).json({error:"Method not allowed"})
 }
 
-const { username, token, ram } = req.body
+const {username,token,ram}=req.body
 
 if(!username) return res.json({error:"Username kosong"})
 if(!ram) return res.json({error:"RAM kosong"})
 if(token!=="Danz123") return res.json({error:"Token salah"})
 
-// ================= CONFIG =================
-
 const PANEL="https://private.ascentstore.web.id"
-const PTLA="ptla_HKeQg4IR7FKu9IcRSttzBPLqvgnccA6SuZPORMZPffF"
-const LOCATION = 1
-const EGG = 15
+const PTLA="ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
 
 // ================= CREATE USER =================
 
@@ -39,24 +35,17 @@ password:username+"001"
 })
 })
 
-const userText = await userReq.text()
-
-let user
-try{
-user = JSON.parse(userText)
-}catch{
-return res.json({error:"User response bukan JSON"})
-}
+const user = await userReq.json()
 
 if(!user.attributes){
-return res.json({error:userText})
+return res.json({error:user.errors?.[0]?.detail || "Create user gagal"})
 }
 
-const uid = user.attributes.id
+const uid=user.attributes.id
 
 // ================= CREATE SERVER =================
 
-await fetch(PANEL+"/api/application/servers",{
+const serverReq=await fetch(PANEL+"/api/application/servers",{
 method:"POST",
 headers:{
 Authorization:`Bearer ${PTLA}`,
@@ -65,14 +54,12 @@ Accept:"application/json"
 },
 body:JSON.stringify({
 
-name: username,
-user: uid,
-egg: EGG,
-docker_image:"ghcr.io/pterodactyl/yolks:debian",
-startup:"bash",
+name:username,
+user:uid,
+egg:19,
 
 environment:{
-STARTUP:"bash"
+CMD_RUN:"npm start"
 },
 
 limits:{
@@ -84,13 +71,13 @@ cpu:0
 },
 
 feature_limits:{
-databases:0,
-backups:0,
-allocations:1
+databases:1,
+allocations:1,
+backups:1
 },
 
 deploy:{
-locations:[LOCATION],
+locations:[1],
 dedicated_ip:false,
 port_range:[]
 }
@@ -98,47 +85,22 @@ port_range:[]
 })
 })
 
-// === WAIT PANEL PROVISION ===
-await new Promise(r=>setTimeout(r,3000))
+const server=await serverReq.json()
 
-// ================= GET LAST SERVER =================
-
-const lastReq = await fetch(PANEL+"/api/application/servers?per_page=1",{
-headers:{
-Authorization:`Bearer ${PTLA}`,
-Accept:"application/json"
-}
-})
-
-const last = await lastReq.json()
-
-const server = last.data?.[0]
-
-// ================= RESPONSE =================
-
-if(!server){
-return res.json({
-success:true,
-note:"Server dibuat tapi belum kebaca panel",
-username,
-password:username+"001"
-})
+if(!server.attributes){
+return res.json({error:server.errors?.[0]?.detail || "Create server gagal"})
 }
 
 return res.json({
 success:true,
-panel:PANEL,
 username,
 password:username+"001",
 server_id:server.attributes.id,
-ram:ram==0?"UNLIMITED":ram+" MB"
+ram:ram+" MB"
 })
 
 }catch(e){
-
-console.log(e)
 return res.json({error:e.message})
-
 }
 
 }
