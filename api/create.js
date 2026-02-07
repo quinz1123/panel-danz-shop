@@ -1,106 +1,144 @@
 import fetch from "node-fetch"
 
-export default async function handler(req,res){
+export default async function handler(req, res) {
 
-try{
+try {
 
-if(req.method!=="POST"){
-return res.status(405).json({error:"Method not allowed"})
+if (req.method !== "POST") {
+return res.status(405).json({ error: "Method not allowed" })
 }
 
-const {username,token,ram}=req.body
+const { username, ram, token } = req.body
 
-if(!username) return res.json({error:"Username kosong"})
-if(!ram) return res.json({error:"RAM kosong"})
-if(token!=="Danz123") return res.json({error:"Token salah"})
+if (!username) return res.json({ error: "Username kosong" })
+if (!ram) return res.json({ error: "RAM kosong" })
+if (token !== "Danz123") return res.json({ error: "Token salah" })
 
-const PANEL="https://private.ascentstore.web.id"
-const PTLA="ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
+// ================= CONFIG =================
+
+const PANEL = "https://private.ascentstore.web.id"
+const PTLA = "ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
+
+const LOCATION = 1
+const EGG = 19
+const DOCKER = "ghcr.io/parkervcp/yolks:nodejs_21"
 
 // ================= CREATE USER =================
 
-const userReq = await fetch(PANEL+"/api/application/users",{
-method:"POST",
-headers:{
-Authorization:`Bearer ${PTLA}`,
-"Content-Type":"application/json",
-Accept:"application/json"
+const userReq = await fetch(PANEL + "/api/application/users", {
+method: "POST",
+headers: {
+Authorization: `Bearer ${PTLA}`,
+"Content-Type": "application/json",
+Accept: "application/json"
 },
-body:JSON.stringify({
-email:`${username}@gmail.com`,
+body: JSON.stringify({
+email: `${username}@gmail.com`,
 username,
-first_name:username,
-last_name:"user",
-password:username+"001"
+first_name: username,
+last_name: "user",
+password: username + "001"
 })
 })
 
-const user = await userReq.json()
+const userText = await userReq.text()
 
-if(!user.attributes){
-return res.json({error:user.errors?.[0]?.detail || "Create user gagal"})
+let user
+try {
+user = JSON.parse(userText)
+} catch {
+return res.json({ error: "User bukan JSON", raw: userText })
 }
 
-const uid=user.attributes.id
+if (!user.attributes) {
+return res.json({ error: userText })
+}
+
+const uid = user.attributes.id
 
 // ================= CREATE SERVER =================
 
-const serverReq=await fetch(PANEL+"/api/application/servers",{
-method:"POST",
-headers:{
-Authorization:`Bearer ${PTLA}`,
-"Content-Type":"application/json",
-Accept:"application/json"
+const serverReq = await fetch(PANEL + "/api/application/servers", {
+method: "POST",
+headers: {
+Authorization: `Bearer ${PTLA}`,
+"Content-Type": "application/json",
+Accept: "application/json"
 },
-body:JSON.stringify({
+body: JSON.stringify({
 
-name:username,
-user:uid,
-egg:19,
+name: username,
+user: uid,
+egg: EGG,
+docker_image: DOCKER,
+startup: "bash",
 
-environment:{
-CMD_RUN:"npm start"
-},
-
-limits:{
-memory:Number(ram),
-swap:0,
-disk:0,
-io:500,
-cpu:0
+environment: {
+CMD_RUN: "npm start"
 },
 
-feature_limits:{
-databases:1,
-allocations:1,
-backups:1
+limits: {
+memory: Number(ram),
+swap: 0,
+disk: 0,
+io: 500,
+cpu: 0
 },
 
-deploy:{
-locations:[1],
-dedicated_ip:false,
-port_range:[]
+feature_limits: {
+databases: 0,
+backups: 0,
+allocations: 1
+},
+
+deploy: {
+locations: [LOCATION],
+dedicated_ip: false,
+port_range: []
 }
 
 })
 })
 
-const server=await serverReq.json()
+// ================= RESPONSE =================
 
-if(!server.attributes){
-return res.json({error:server.errors?.[0]?.detail || "Create server gagal"})
+const serverText = await serverReq.text()
+
+if (!serverText) {
+return res.json({
+success: true,
+note: "Server dibuat tapi panel tidak kirim response",
+username,
+password: username + "001"
+})
 }
+
+let server
+try {
+server = JSON.parse(serverText)
+} catch {
+return res.json({ error: "Server bukan JSON", raw: serverText })
+}
+
+if (!server.attributes) {
+return res.json({ error: serverText })
+}
+
+// ================= SUCCESS =================
 
 return res.json({
-success:true,
+success: true,
+panel: PANEL,
 username,
-password:username+"001",
-server_id:server.attributes.id,
-ram:ram+" MB"
+password: username + "001",
+server_id: server.attributes.id,
+ram: ram + " MB"
 })
 
-}catch(e){
-return res.json({error:e.message})
+} catch (e) {
+
+return res.json({ error: e.message })
+
 }
 
 }
