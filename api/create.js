@@ -62,7 +62,7 @@ docker_image:"ghcr.io/pterodactyl/yolks:debian",
 startup:"bash",
 
 environment:{
-CMD_RUN:"node index.js"
+CMD_RUN:"node index.js",
 MAX_PLAYERS:"100"
 },
 
