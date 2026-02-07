@@ -81,7 +81,7 @@ allocations:1
 },
 
 deploy:{
-locations:[1],
+locations:[],
 dedicated_ip:false,
 port_range:[]
 }
