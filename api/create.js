@@ -4,7 +4,7 @@ export default async function handler(req,res){
 
 try{
 
-if(req.method !== "POST"){
+if(req.method!=="POST"){
 return res.status(405).json({error:"Method not allowed"})
 }
 
@@ -12,12 +12,12 @@ const { username, token, ram } = req.body
 
 if(!username) return res.json({error:"Username kosong"})
 if(!ram) return res.json({error:"RAM kosong"})
-if(token !== "Danz123") return res.json({error:"Token salah"})
+if(token!=="Danz123") return res.json({error:"Token salah"})
 
 // ================= CONFIG =================
 
-const PANEL = "https://private.ascentstore.web.id"
-const PTLA = "ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
+const PANEL="https://private.ascentstore.web.id"
+const PTLA="ptla_HKeQg4IR7FKu9IcRSttzBPLqvgnccA6SuZPORMZPffF"
 const LOCATION = 1
 const EGG = 15
 
@@ -56,7 +56,7 @@ const uid = user.attributes.id
 
 // ================= CREATE SERVER =================
 
-const serverReq = await fetch(PANEL+"/api/application/servers",{
+await fetch(PANEL+"/api/application/servers",{
 method:"POST",
 headers:{
 Authorization:`Bearer ${PTLA}`,
@@ -65,15 +65,14 @@ Accept:"application/json"
 },
 body:JSON.stringify({
 
-name:username,
-user:uid,
-egg:EGG,
+name: username,
+user: uid,
+egg: EGG,
 docker_image:"ghcr.io/pterodactyl/yolks:debian",
 startup:"bash",
 
 environment:{
-CMD_RUN:"node index.js",
-MAX_PLAYERS:"99999"
+STARTUP:"bash"
 },
 
 limits:{
@@ -85,8 +84,8 @@ cpu:0
 },
 
 feature_limits:{
-databases:5,
-backups:5,
+databases:0,
+backups:0,
 allocations:1
 },
 
@@ -99,31 +98,32 @@ port_range:[]
 })
 })
 
-// === SAFE RESPONSE ===
+// === WAIT PANEL PROVISION ===
+await new Promise(r=>setTimeout(r,3000))
 
-const serverText = await serverReq.text()
+// ================= GET LAST SERVER =================
 
-if(!serverText){
+const lastReq = await fetch(PANEL+"/api/application/servers?per_page=1",{
+headers:{
+Authorization:`Bearer ${PTLA}`,
+Accept:"application/json"
+}
+})
+
+const last = await lastReq.json()
+
+const server = last.data?.[0]
+
+// ================= RESPONSE =================
+
+if(!server){
 return res.json({
 success:true,
-note:"Server dibuat tapi panel tidak kirim response",
+note:"Server dibuat tapi belum kebaca panel",
 username,
 password:username+"001"
 })
 }
-
-let server
-try{
-server = JSON.parse(serverText)
-}catch{
-return res.json({error:"Server response bukan JSON"})
-}
-
-if(!server.attributes){
-return res.json({error:serverText})
-}
-
-// ================= SUCCESS =================
 
 return res.json({
 success:true,
@@ -131,11 +131,12 @@ panel:PANEL,
 username,
 password:username+"001",
 server_id:server.attributes.id,
-ram:ram+" MB"
+ram:ram==0?"UNLIMITED":ram+" MB"
 })
 
 }catch(e){
 
+console.log(e)
 return res.json({error:e.message})
 
 }
