@@ -34,7 +34,8 @@ password:username+"001"
 })
 })
 
-const user = await userReq.json()
+const userRaw = await userReq.text()
+const user = userRaw ? JSON.parse(userRaw) : {}
 
 if(!user.attributes){
 return res.json({
@@ -57,13 +58,12 @@ body:JSON.stringify({
 
 name:username,
 user:uid,
-egg:15,
+egg:1,
 docker_image:"ghcr.io/pterodactyl/yolks:debian",
 startup:"bash",
 
 environment:{
-CMD_RUN:"node index.js",
-MAX_PLAYERS:"100"
+CMD_RUN:"node index.js"
 },
 
 limits:{
@@ -89,11 +89,12 @@ port_range:[]
 })
 })
 
-const server = await serverReq.json()
+const raw = await serverReq.text()
+const server = raw ? JSON.parse(raw) : {}
 
 if(!server.attributes){
 return res.json({
-error:server.errors?.[0]?.detail || "Gagal create server"
+error:server.errors?.[0]?.detail || "Server dibuat tapi response kosong"
 })
 }
 
