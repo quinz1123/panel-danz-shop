@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danz Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<div class="drawer" id="drawer">
+
+<div class="avatar">
+<img src="https://files.catbox.moe/gi1xx7.jpeg">
+</div>
+
+<h3>DANZ</h3>
+
+<div class="drawer-menu slanted">
+<div class="sbtn" onclick="goPanel()">PANEL</div>
+<div class="sbtn" onclick="openServers()">SERVER</div>
+<div class="sbtn" onclick="wa()">WHATSAPP</div>
+<div class="sbtn" onclick="tt()">TIKTOK</div>
+<div class="sbtn" onclick="info()">INFO</div>
+
+<div class="sbtn logout" onclick="logout()">LOGOUT</div>
+</div>
+
+</div>
+
+<div class="header">
+<div class="burger" onclick="openDrawer()">☰</div>
+</div>
+
+<div class="menu-grid">
+<button onclick="goPanel()">PANEL</button>
+<button onclick="openServers()">SERVER</button>
+<button onclick="wa()">WHATSAPP</button>
+<button onclick="tt()">TIKTOK</button>
+</div>
+
+<div class="card fade">
+<img src="https://files.catbox.moe/7qva10.png">
+</div>
+
+<div class="desc fade">
+HAI WEBSITE INI ADALAH WEBSITE JUAL PANEL YA GAYS DAN SEMUANYA OTOMATIS CUY BISA PILIH SESUAI HARGA
+</div>
+
+<div class="card fade">
+<h3 style="padding:15px">STATUS</h3>
+<p style="padding:0 15px 15px">✅ Auto Create Panel</p>
+<p style="padding:0 15px 15px">✅ Google Login</p>
+<p style="padding:0 15px 15px">✅ Realtime Server</p>
+</div>
+
+<div class="card fade">
+<h3 style="padding:15px">INFO</h3>
+<p style="padding:0 15px 15px">
+Jika panel hilang silakan hubungi admin.<br>
+Semua server tersimpan otomatis.
+</p>
+</div>
+
+<script>
+function openDrawer(){
+drawer.classList.add("open")
+overlay.classList.add("show")
+}
+
+function closeDrawer(){
+drawer.classList.remove("open")
+overlay.classList.remove("show")
+}
+
+function goPanel(){
+location.href="create.html"
+}
+
+function openServers(){
+location.href="servers.html"
+}
+
+function wa(){
+window.open("https://wa.me/628xxxx","_blank")
+}
+
+function tt(){
+window.open("https://tiktok.com","_blank")
+}
+
+function info(){
+alert("Danz Premium Panel Shop")
+}
+</script>
+
+<script type="module" src="auth.js"></script>
+<script type="module" src="guard.js"></script>
+
+</body>
+</html>
