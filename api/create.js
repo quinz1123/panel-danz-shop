@@ -13,8 +13,8 @@ const {username,token,ram}=req.body
 if(!username) return res.json({error:"Username kosong"})
 if(token!=="Danz123") return res.json({error:"Token salah"})
 
-const PANEL="https://danz-tsuyoi.flixiazone.my.id"
-const PTLA="ptla_HDoMsQBrkjxBYtS0ei6h4pV7NwBHPxZfqgmQBMeczbv"
+const PANEL="https://private.ascentstore.web.id"
+const PTLA="ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
 
 // ================= CREATE USER =================
 
