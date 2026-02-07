@@ -13,17 +13,16 @@ const {username,token,ram}=req.body
 if(!username) return res.json({error:"Username kosong"})
 if(token!=="Danz123") return res.json({error:"Token salah"})
 
-const PANEL="https://private.ascentstore.web.id"
-const PTLA="ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
+const PANEL="https://danz-tsuyoi.flixiazone.my.id"
+const PTLA="ptla_HDoMsQBrkjxBYtS0ei6h4pV7NwBHPxZfqgmQBMeczbv"
 
-// ================= CREATE USER =================
-
+// CREATE USER
 const userReq = await fetch(PANEL+"/api/application/users",{
 method:"POST",
 headers:{
-"Authorization":`Bearer ${PTLA}`,
+Authorization:`Bearer ${PTLA}`,
 "Content-Type":"application/json",
-"Accept":"application/json"
+Accept:"application/json"
 },
 body:JSON.stringify({
 email:`${username}@gmail.com`,
@@ -38,21 +37,18 @@ const userRaw = await userReq.text()
 const user = userRaw ? JSON.parse(userRaw) : {}
 
 if(!user.attributes){
-return res.json({
-error:user.errors?.[0]?.detail || "Gagal create user"
-})
+return res.json({error:"Gagal create user"})
 }
 
 const uid = user.attributes.id
 
-// ================= CREATE SERVER =================
-
+// CREATE SERVER
 const serverReq = await fetch(PANEL+"/api/application/servers",{
 method:"POST",
 headers:{
-"Authorization":`Bearer ${PTLA}`,
+Authorization:`Bearer ${PTLA}`,
 "Content-Type":"application/json",
-"Accept":"application/json"
+Accept:"application/json"
 },
 body:JSON.stringify({
 
@@ -93,9 +89,7 @@ const raw = await serverReq.text()
 const server = raw ? JSON.parse(raw) : {}
 
 if(!server.attributes){
-return res.json({
-error:server.errors?.[0]?.detail || "Server dibuat tapi response kosong"
-})
+return res.json({error:"Server dibuat tapi response kosong"})
 }
 
 return res.json({
@@ -108,9 +102,7 @@ ram:ram==0?"UNLIMITED":ram+" MB"
 })
 
 }catch(e){
-
 return res.json({error:e.message})
-
 }
 
 }
