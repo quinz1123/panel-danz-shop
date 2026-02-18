@@ -16,8 +16,8 @@ if (token !== "Danz123") return res.json({ error: "Token salah" })
 
 // ================= CONFIG =================
 
-const PANEL = "https://private.ascentstore.web.id"
-const PTLA = "ptla_wRkvn4hvRpecDpsC8qY3IHOBaipqUDfBeewkIrE7Rde"
+const PANEL = "https://sanchez-fikz-ganteng.flixiazone.my.id"
+const PTLA = "ptla_mMHmUkSc8qhsNe4Z1OWZYfX1psY4URhDZ57KXJEBYCn"
 
 const LOCATION = 1
 const EGG = 19
