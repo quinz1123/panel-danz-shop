@@ -1,143 +1,113 @@
 import fetch from "node-fetch"
 
-export default async function handler(req, res) {
+export default async function handler(req,res){
 
-try {
+try{
 
-if (req.method !== "POST") {
-return res.status(405).json({ error: "Method not allowed" })
+if(req.method!=="POST"){
+return res.status(405).json({error:"Method not allowed"})
 }
 
-const { username, ram, token } = req.body
+const {username,token,ram}=req.body
 
-if (!username) return res.json({ error: "Username kosong" })
-if (!ram) return res.json({ error: "RAM kosong" })
-if (token !== "Danz123") return res.json({ error: "Token salah" })
+if(!username) return res.json({error:"Username kosong"})
+if(token!=="Danz123") return res.json({error:"Token salah"})
 
-// ================= CONFIG =================
-
-const PANEL = "https://sanchez-fikz-ganteng.flixiazone.my.id"
-const PTLA = "ptla_mMHmUkSc8qhsNe4Z1OWZYfX1psY4URhDZ57KXJEBYCn"
-
-const LOCATION = 1
-const EGG = 15
-const DOCKER = "ghcr.io/parkervcp/yolks:nodejs_21"
+const PANEL="https://sanchez-fikz-ganteng.flixiazone.my.id"
+const PTLA="ptla_mMHmUkSc8qhsNe4Z1OWZYfX1psY4URhDZ57KXJEBYCn"
 
 // ================= CREATE USER =================
 
-const userReq = await fetch(PANEL + "/api/application/users", {
-method: "POST",
-headers: {
-Authorization: `Bearer ${PTLA}`,
-"Content-Type": "application/json",
-Accept: "application/json"
+const userReq = await fetch(PANEL+"/api/application/users",{
+method:"POST",
+headers:{
+"Authorization":`Bearer ${PTLA}`,
+"Content-Type":"application/json",
+"Accept":"application/json"
 },
-body: JSON.stringify({
-email: `${username}@gmail.com`,
+body:JSON.stringify({
+email:`${username}@gmail.com`,
 username,
-first_name: username,
-last_name: "user",
-password: username + "001"
+first_name:username,
+last_name:"user",
+password:username+"001"
 })
 })
 
-const userText = await userReq.text()
+const user = await userReq.json()
 
-let user
-try {
-user = JSON.parse(userText)
-} catch {
-return res.json({ error: "User bukan JSON", raw: userText })
-}
-
-if (!user.attributes) {
-return res.json({ error: userText })
+if(!user.attributes){
+return res.json({
+error:user.errors?.[0]?.detail || "Gagal create user"
+})
 }
 
 const uid = user.attributes.id
 
 // ================= CREATE SERVER =================
 
-const serverReq = await fetch(PANEL + "/api/application/servers", {
-method: "POST",
-headers: {
-Authorization: `Bearer ${PTLA}`,
-"Content-Type": "application/json",
-Accept: "application/json"
+const serverReq = await fetch(PANEL+"/api/application/servers",{
+method:"POST",
+headers:{
+"Authorization":`Bearer ${PTLA}`,
+"Content-Type":"application/json",
+"Accept":"application/json"
 },
-body: JSON.stringify({
+body:JSON.stringify({
 
-name: username,
-user: uid,
-egg: EGG,
-docker_image: DOCKER,
-startup: "bash",
+name:username,
+user:uid,
+egg:15,
+docker_image:"ghcr.io/pterodactyl/yolks:debian",
+startup:"bash",
 
-environment: {
-CMD_RUN: "npm start"
-},
-
-limits: {
-memory: Number(ram),
-swap: 0,
-disk: 0,
-io: 500,
-cpu: 0
+environment:{
+CMD_RUN:"node index.js"   // FIX ERROR COMMAND RUN
 },
 
-feature_limits: {
-databases: 0,
-backups: 0,
-allocations: 1
+limits:{
+memory:Number(ram),
+swap:0,
+disk:0,
+io:500,
+cpu:0
 },
 
-deploy: {
-locations: [LOCATION],
-dedicated_ip: false,
-port_range: []
+feature_limits:{
+databases:5,
+backups:5,
+allocations:1
+},
+
+deploy:{
+locations:[1],
+dedicated_ip:false,
+port_range:[]
 }
 
 })
 })
 
-// ================= RESPONSE =================
+const server = await serverReq.json()
 
-const serverText = await serverReq.text()
-
-if (!serverText) {
+if(!server.attributes){
 return res.json({
-success: true,
-note: "Server dibuat tapi panel tidak kirim response",
-username,
-password: username + "001"
+error:server.errors?.[0]?.detail || "Gagal create server"
 })
 }
-
-let server
-try {
-server = JSON.parse(serverText)
-} catch {
-return res.json({ error: "Server bukan JSON", raw: serverText })
-}
-
-if (!server.attributes) {
-return res.json({ error: serverText })
-}
-
-// ================= SUCCESS =================
 
 return res.json({
-success: true,
-panel: PANEL,
+success:true,
+panel:PANEL,
 username,
-password: username + "001",
-server_id: server.attributes.id,
-ram: ram + " MB"
+password:username+"001",
+server_id:server.attributes.id,
+ram:ram==0?"UNLIMITED":ram+" MB"
 })
 
-} catch (e) {
+}catch(e){
 
-return res.json({ error: e.message })
+return res.json({error:e.message})
 
 }
 
