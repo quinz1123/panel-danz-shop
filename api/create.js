@@ -20,7 +20,7 @@ const PANEL = "https://sanchez-fikz-ganteng.flixiazone.my.id"
 const PTLA = "ptla_mMHmUkSc8qhsNe4Z1OWZYfX1psY4URhDZ57KXJEBYCn"
 
 const LOCATION = 1
-const EGG = 19
+const EGG = 15
 const DOCKER = "ghcr.io/parkervcp/yolks:nodejs_21"
 
 // ================= CREATE USER =================
